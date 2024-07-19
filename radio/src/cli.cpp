@@ -681,16 +681,17 @@ int cliTest(const char ** argv)
   return 0;
 }
 
-int cliTrainer(const int ** argv)
+int cliTrainer(const char ** argv)
 {
   int thr;
   int chan;
-  if ((toInt(argv, 2, &chan) > 0) && (toInt(argv, 3, &thr) > 0))
+  if ((toInt(argv, 1, &chan) > 0) && (toInt(argv, 2, &thr) > 0))
   {
     ppmInput[chan] = thr;
     ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
     serialPrint("!");
   }
+  return 0;
 }
 
 #if defined(DEBUG)
