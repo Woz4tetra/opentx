@@ -30,6 +30,7 @@ def main() -> None:
     joysticks = []
     horizontal_value = 1000
     vertical_value = 1000
+    prev_receive_time = time.perf_counter()
     try:
         while True:
             for event in pygame.event.get():
@@ -52,12 +53,18 @@ def main() -> None:
                 for frame in response.split(b"\xea"):  # CRSF start byte
                     if not frame:
                         continue
+                    now = time.perf_counter()
+                    delta_time = now - prev_receive_time
+                    prev_receive_time = now
+                    print(f"Delay: {delta_time:0.3f}, Frame: {frame}")
                     if not frame[1:2] == b"\x1e":  # Attitude frame
                         continue
                     roll = int.from_bytes(frame[2:4], "big", signed=True) / 10000
                     pitch = int.from_bytes(frame[4:6], "big", signed=True) / 10000
                     yaw = int.from_bytes(frame[6:8], "big", signed=True) / 10000
-                    print(f"Roll: {roll:0.2f}, Pitch: {pitch:0.2f}, Yaw: {yaw:0.2f}")
+                    print(
+                        f"Delay: {delta_time:0.3f}, Roll: {roll:0.2f}, Pitch: {pitch:0.2f}, Yaw: {yaw:0.2f}"
+                    )
             time.sleep(0.01)
 
     finally:
