@@ -1,0 +1,7 @@
+#!/bin/bash
+BASE_DIR=$(realpath "$(dirname "${0}")")
+
+docker run --rm -it \
+    -e "BOARD_NAME=x9d+2019" \
+    -e "CMAKE_FLAGS=USB_SERIAL=YES CLI=YES DEBUG=YES" \
+    -v "${BASE_DIR}/..:/opentx" vitass/opentx-fw-build
