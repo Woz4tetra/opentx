@@ -681,6 +681,32 @@ int cliTest(const char ** argv)
   return 0;
 }
 
+int cliTrainer(const char ** argv)
+{
+  int thr;
+  int chan;
+  if ((toInt(argv, 1, &chan) > 0) && (toInt(argv, 2, &thr) > 0))
+  {
+    ppmInput[chan] = thr;
+    ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+  }
+  return 0;
+}
+
+int cliStreamTelemetry(const char ** argv)
+{
+  if (!strcmp(argv[1], "on")) {
+    telemetrySerialStreaming = 1;
+  }
+  else if (!strcmp(argv[1], "off")) {
+    telemetrySerialStreaming = 0;
+  }
+  else {
+    serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+  }
+  return 0;
+}
+
 #if defined(DEBUG)
 int cliTrace(const char ** argv)
 {
@@ -1211,6 +1237,8 @@ const CliCommand cliCommands[] = {
   { "stackinfo", cliStackInfo, "" },
   { "meminfo", cliMemoryInfo, "" },
   { "test", cliTest, "new | std::exception | graphics | memspd" },
+  { "trainer", cliTrainer, "<channel> <value>" },
+  { "telemetry", cliStreamTelemetry, "on | off" },
 #if defined(DEBUG)
   { "trace", cliTrace, "on | off" },
 #endif
@@ -1304,8 +1332,6 @@ void cliTask(void * pdata)
       }
     }
     else if (c == '\r' || c == '\n') {
-      // enter
-      serialCrlf();
       line[pos] = '\0';
       if (pos == 0 && cliLastLine[0]) {
         // execute (repeat) last command
@@ -1317,11 +1343,9 @@ void cliTask(void * pdata)
       }
       cliExecLine(line);
       pos = 0;
-      cliPrompt();
     }
     else if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
       line[pos++] = c;
-      serialPutc(c);
     }
   }
 }
