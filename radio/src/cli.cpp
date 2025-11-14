@@ -707,6 +707,20 @@ int cliStreamTelemetry(const char ** argv)
   return 0;
 }
 
+int cliStreamChannels(const char ** argv)
+{
+  if (!strcmp(argv[1], "on")) {
+    channelSerialStreaming = 1;
+  }
+  else if (!strcmp(argv[1], "off")) {
+    channelSerialStreaming = 0;
+  }
+  else {
+    serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+  }
+  return 0;
+}
+
 #if defined(DEBUG)
 int cliTrace(const char ** argv)
 {
@@ -1239,6 +1253,7 @@ const CliCommand cliCommands[] = {
   { "test", cliTest, "new | std::exception | graphics | memspd" },
   { "trainer", cliTrainer, "<channel> <value>" },
   { "telemetry", cliStreamTelemetry, "on | off" },
+  { "channels", cliStreamChannels, "on | off" },
 #if defined(DEBUG)
   { "trace", cliTrace, "on | off" },
 #endif

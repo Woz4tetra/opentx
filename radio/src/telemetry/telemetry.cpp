@@ -25,6 +25,7 @@
 
 uint8_t telemetryStreaming = 0;
 uint8_t telemetrySerialStreaming = 0;
+uint8_t channelSerialStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 uint8_t telemetryRxBufferCount = 0;
 
@@ -560,4 +561,59 @@ void ModuleSyncStatus::getRefreshString(char * statusText)
   tmp = strAppendUnsigned(tmp, refreshRate);
 #endif
   tmp = strAppend(tmp, "us");
+}
+
+// Channel data streaming function
+// Uses a custom packet format to avoid conflicts with CRSF:
+// Sync: 0xA3 0xA4 0xA5 (different from CRSF's 0xC8)
+// Length: packet length excluding sync bytes
+// Data: channel values as 16-bit signed integers (little-endian)
+// Checksum: simple 8-bit XOR of all bytes excluding sync
+void streamChannelDataToSerial()
+{
+#if defined(USB_SERIAL)
+  if (!CHANNEL_SERIAL_STREAMING()) {
+    return;
+  }
+
+  // Send data in smaller chunks to avoid USB buffer overflow
+  // Split 32 channels into 2 packets of 16 channels each
+  static uint8_t packetPhase = 0;
+  
+  const uint8_t channels_per_packet = 16;
+  const uint8_t start_channel = packetPhase * channels_per_packet;
+  const uint8_t end_channel = start_channel + channels_per_packet;
+  
+  // Custom packet format:
+  // 0xA3 0xA4 0xA5 [PHASE] [LEN] [CH_START_LOW] [CH_START_HIGH] ... [CHK]
+  const uint8_t sync_byte1 = 0xA3;
+  const uint8_t sync_byte2 = 0xA4;
+  const uint8_t sync_byte3 = 0xA5;
+  const uint8_t data_length = (channels_per_packet * 2) + 1; // data + checksum
+  
+  uint8_t checksum = packetPhase ^ data_length;
+  
+  usbSerialPutc(sync_byte1);
+  usbSerialPutc(sync_byte2);
+  usbSerialPutc(sync_byte3);
+  usbSerialPutc(packetPhase); // 0 for channels 0-15, 1 for channels 16-31
+  usbSerialPutc(data_length);
+  
+  // Send channel data as 16-bit little-endian values
+  for (uint8_t i = start_channel; i < end_channel; i++) {
+    uint8_t low_byte = channelOutputs[i] & 0xFF;
+    uint8_t high_byte = (channelOutputs[i] >> 8) & 0xFF;
+    
+    usbSerialPutc(low_byte);
+    usbSerialPutc(high_byte);
+    
+    checksum ^= low_byte;
+    checksum ^= high_byte;
+  }
+  
+  usbSerialPutc(checksum);
+  
+  // Alternate between packet phases
+  packetPhase = (packetPhase + 1) % 2;
+#endif
 }
