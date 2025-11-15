@@ -25,6 +25,10 @@
 
 extern uint8_t cliTracesEnabled;
 
+#if defined(LUA)
+extern uint8_t luaSerialEnabled;
+#endif
+
 #ifdef __cplusplus
 #include "fifo.h"
 extern Fifo<uint8_t, 256> cliRxFifo;

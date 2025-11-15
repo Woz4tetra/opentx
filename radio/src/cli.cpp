@@ -721,6 +721,26 @@ int cliStreamChannels(const char ** argv)
   return 0;
 }
 
+#if defined(LUA)
+uint8_t luaSerialEnabled = 0;
+
+int cliLuaSerial(const char ** argv)
+{
+  if (!strcmp(argv[1], "on")) {
+    luaSerialEnabled = 1;
+    serialPrint("Lua serial forwarding enabled");
+  }
+  else if (!strcmp(argv[1], "off")) {
+    luaSerialEnabled = 0;
+    serialPrint("Lua serial forwarding disabled");
+  }
+  else {
+    serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+  }
+  return 0;
+}
+#endif
+
 #if defined(DEBUG)
 int cliTrace(const char ** argv)
 {
@@ -1254,6 +1274,9 @@ const CliCommand cliCommands[] = {
   { "trainer", cliTrainer, "<channel> <value>" },
   { "telemetry", cliStreamTelemetry, "on | off" },
   { "channels", cliStreamChannels, "on | off" },
+#if defined(LUA)
+  { "luaserial", cliLuaSerial, "on | off" },
+#endif
 #if defined(DEBUG)
   { "trace", cliTrace, "on | off" },
 #endif

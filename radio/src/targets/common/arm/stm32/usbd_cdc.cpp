@@ -230,6 +230,14 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
     }
   }
 #endif
+#if defined(LUA) && defined(CLI)
+  // copy data to the LUA FIFO when luaSerial mode is enabled
+  if (luaRxFifo && luaSerialEnabled) {
+    for (uint32_t i = 0; i < Len; i++) {
+      luaRxFifo->push(Buf[i]);
+    }
+  }
+#endif
 
   return USBD_OK;
 }

@@ -84,7 +84,7 @@
   { "EVT_"#xxx"_LONG", EVT_KEY_LONG(yyy) }, \
   { "EVT_"#xxx"_REPT", EVT_KEY_REPT(yyy) }
 
-#if defined(LUA) && !defined(CLI)
+#if defined(LUA)
 Fifo<uint8_t, LUA_FIFO_SIZE> * luaRxFifo = nullptr;
 #endif
 
@@ -1880,7 +1880,7 @@ Reads characters from the serial port. The string is allowed to contain any char
 */
 static int luaSerialRead(lua_State * L)
 {
-#if defined(LUA) && !defined(CLI)
+#if defined(LUA)
   int num = luaL_optunsigned(L, 1, 0);
 
   if (!luaRxFifo) {
