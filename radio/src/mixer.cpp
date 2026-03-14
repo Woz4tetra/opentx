@@ -488,7 +488,8 @@ void evalInputs(uint8_t mode)
         v = 0;
       }
 
-      if (mode <= e_perout_mode_inactive_flight_mode && isTrainerInputValid()) {
+      if (mode <= e_perout_mode_inactive_flight_mode && isTrainerInputValid() &&
+          isFunctionActive(FUNCTION_TRAINER_STICK1 + ch)) {
         // trainer mode
         TrainerMix* td = &g_eeGeneral.trainer.mix[ch];
         if (td->mode) {
