@@ -38,7 +38,7 @@ def main() -> None:
             channel_0 = int(SWEEP_AMPLITUDE * triangle_wave(phase))
             channel_1 = int(SWEEP_AMPLITUDE * triangle_wave((phase + 0.5) % 1.0))
 
-            # device.write(f"trainer 0 {channel_0}\r\n".encode())
+            device.write(f"trainer 0 {channel_0}\r\n".encode())
             device.write(f"trainer 1 {channel_1}\r\n".encode())
             print(f"trainer 0={channel_0:>4}, trainer 1={channel_1:>4}", end="\r")
 
