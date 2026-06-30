@@ -41,6 +41,7 @@ void checkTrainerSignalWarning()
   else if (!ppmInputValidityTimer && ppmInputValidState == PPM_IN_IS_VALID) {
     ppmInputValidState = PPM_IN_INVALID;
     AUDIO_TRAINER_LOST();
+    memset(ppmInput, 0, sizeof(ppmInput));  // clear all trainer inputs
   }
   else if (ppmInputValidityTimer && ppmInputValidState == PPM_IN_INVALID) {
     ppmInputValidState = PPM_IN_IS_VALID;

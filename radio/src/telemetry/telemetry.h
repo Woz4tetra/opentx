@@ -40,10 +40,22 @@
 #endif
 
 extern uint8_t telemetryStreaming; // >0 (true) == data is streaming in. 0 = no data detected for some time
+extern uint8_t telemetrySerialStreaming; // >0 (true) == data should be streamed to serial port
+extern uint8_t channelSerialStreaming; // >0 (true) == channel data should be streamed to serial port
 
 inline bool TELEMETRY_STREAMING()
 {
   return telemetryStreaming > 0;
+}
+
+inline bool TELEMETRY_SERIAL_STREAMING()
+{
+  return telemetrySerialStreaming > 0;
+}
+
+inline bool CHANNEL_SERIAL_STREAMING()
+{
+  return channelSerialStreaming > 0;
 }
 
 enum TelemetryStates {
@@ -341,5 +353,7 @@ struct ModuleSyncStatus
 };
 
 ModuleSyncStatus& getModuleSyncStatus(uint8_t moduleIdx);
+
+void streamChannelDataToSerial();
 
 #endif // _TELEMETRY_H_

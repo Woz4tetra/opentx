@@ -1541,6 +1541,13 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
+  
+  // Stream channel data periodically (throttled to ~100Hz for split packets)
+  static tmr10ms_t lastChannelStreamTime = 0;
+  if ((tmr10ms - lastChannelStreamTime) >= 1) { // Every 10ms (100Hz total, 50Hz per half)
+    lastChannelStreamTime = tmr10ms;
+    streamChannelDataToSerial();
+  }
 }
 
 void doMixerPeriodicUpdates()
